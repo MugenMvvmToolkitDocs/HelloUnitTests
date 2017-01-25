@@ -12,9 +12,8 @@ namespace HelloUnitTests.Modules
 
         public bool Load(IModuleContext context)
         {
-            BindingServiceProvider
-                .ResourceResolver
-                .AddType("Color", typeof(Color));
+            BindingServiceProvider.ResourceResolver.AddType("Color", typeof(Color));
+
             return true;
         }
 
