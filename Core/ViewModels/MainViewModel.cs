@@ -1,13 +1,23 @@
 ﻿using System.Windows.Input;
 using Core.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace Core.ViewModels
 {
-    public class MainViewModel : EditableViewModel<User>
+    public class MainViewModel : EditableViewModel<User>, IHasState
     {
         private GridViewModel<User> _userGridViewModel;
+
+        private static readonly DataConstant<User> EntityConstant;
+        private static readonly DataConstant<bool> IsNewRecordConstant;
+
+        static MainViewModel()
+        {
+            EntityConstant = DataConstant.Create(() => EntityConstant, true);
+            IsNewRecordConstant = DataConstant.Create(() => IsNewRecordConstant);
+        }
 
         public MainViewModel()
         {
@@ -85,6 +95,24 @@ namespace Core.ViewModels
         {
             var user = new User();
             InitializeEntity(user, true);
+        }
+
+        public void LoadState(IDataContext state)
+        {
+            var data = state.GetData(EntityConstant);
+            if (data == null)
+                return;
+            var isNew = state.GetData(IsNewRecordConstant);
+            InitializeEntity(data, isNew);
+            HasChanges = true;
+        }
+
+        public void SaveState(IDataContext state)
+        {
+            if (!IsEntityInitialized)
+                return;
+            state.AddOrUpdate(EntityConstant, Entity);
+            state.AddOrUpdate(IsNewRecordConstant, IsNewRecord);
         }
     }
 }
